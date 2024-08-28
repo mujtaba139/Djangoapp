@@ -1,0 +1,17 @@
+{% extends 'base/main.html' %}
+{% block content %}
+<div class="header">
+    <a href="{% url 'base:todo' %}">&#8592; Back</a>
+</div>
+<div class="card-body">
+    <h1>Create Task</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" value=Submit>
+    
+    </form>
+    
+</div>
+
+{% endblock content %}

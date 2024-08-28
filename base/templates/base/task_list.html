@@ -1,0 +1,148 @@
+{% extends 'base/main.html' %}
+{% block content %}
+<script>!function(w,d,i,s){function l(){if(!d.getElementById(i)){var f=d.getElementsByTagName(s)[0],e=d.createElement(s);e.type="text/javascript",e.async=!0,e.src="https://canny.io/sdk.js",f.parentNode.insertBefore(e,f)}}if("function"!=typeof w.Canny){var c=function(){c.q.push(arguments)};c.q=[],w.Canny=c,"complete"===d.readyState?l():w.attachEvent?w.attachEvent("onload",l):w.addEventListener("load",l,!1)}}(window,document,"canny-jssdk","script");</script>
+
+<div class="header">
+    <div>
+        <h1>Hello {{request.user|title}}</h1>
+        <h3>You have {{count}} incomplete task{{ count|pluralize:"s" }}</h3>
+    </div>
+
+<script>
+  Canny('initChangelog', {
+    appID: '158dad2d-3dc3-adfc-0bbd-eae63f258839',
+    position: 'bottom',
+    align: 'left',
+    theme: 'light', // options: light [default], dark, auto
+});
+</script>
+    {% if request.user.is_authenticated %}
+    
+    <a href="{% url 'base:logout' %}">Logout</a>
+    {%else%}
+    <a href="{% url 'base:login' %}">Login</a>
+    {%endif%}
+    
+    
+</div>
+<div class="todo">
+    <h1> To do list</h1>
+    <a class="add" href="{% url 'base:task-create' %}">&#x2b;</a>
+</div>
+
+
+<div class="task-list-wrap">
+   
+    {% for task in tasks %}
+        <div class="task-wrapper">
+            {% if task.complete %}
+                <div class="task-title">
+                    <div id="completeicon" data-task-id="{{ task.id }}" class="task-complete-icon" onclick="completeicon()"></div>
+                        <i><s><a href="{% url 'base:task-update' task.id %}">{{task.title|title}}</a></s></i>
+                    </div>
+                    <a onclick="deleteFunct()" id="delete-link" data-task-id="{{ task.id }}" class="delete-link" >&#215;</a>
+                
+                    {% else %}
+                    <div class="task-title">
+                        <div class="task-incomplete-icon" id="incompleteicon" data-task-id="{{ task.id }}" onclick="incompleteicon()"></div>
+                        <a href="{% url 'base:task-update' task.id %}">{{task.title|title}}</a>
+                    </div>
+                    <a onclick="deleteFunct()" id="delete-link" data-task-id="{{ task.id }}" class="delete-link" >&#215;</a>
+                </div>
+                <!-- href="{% url 'base:task-delete' task.id %}" -->
+            {% endif %}
+        </div>
+    {% empty %}
+        <h2> No items in the list</h2>
+        {% endfor %}
+
+
+       <script>
+         function deleteFunct(){
+         const delete_task = document.getElementById('delete-link');
+         const taskId = delete_task.getAttribute('data-task-id');
+         let formData = new FormData();
+         formData.append('task_id', taskId);
+         fetch("{% url 'base:task_delete' %}", {
+    method: "POST",
+    headers: {
+        'Accept': 'application/json', 
+        'X-CSRFToken': "{{ csrf_token }}"       
+    },
+    body: formData,
+})
+    .then(response => response.json())
+    .then(data => {
+     if(data.status){
+        window.alert("Task Deleted");
+        window.location.reload();
+     }
+     else{
+        window.alert("task not delete")
+     }
+    })
+    .catch(error => {
+        console.log('task_id ' + error);
+    })
+    }
+
+    function completeicon(){
+         const complete_task = document.getElementById('completeicon');
+         const taskId = complete_task.getAttribute('data-task-id');
+         let formData = new FormData();
+         formData.append('task_id', taskId);
+         fetch("{% url 'base:task_complete' %}", {
+    method: "POST",
+    headers: {
+        'Accept': 'application/json', 
+        'X-CSRFToken': "{{ csrf_token }}"       
+    },
+    body: formData,
+})
+    .then(response => response.json())
+    .then(data => {
+     if(data.status){
+        window.alert("Task marked as incompleted");
+        window.location.reload();
+     }
+     else{
+        window.alert("task not marked")
+     }
+    })
+    .catch(error => {
+        console.log('task_id ' + error);
+    })
+    }
+         
+    function incompleteicon(){
+         const complete_task1 = document.getElementById('incompleteicon');
+         const taskId2 = complete_task1.getAttribute('data-task-id');
+         let formData = new FormData();
+         formData.append('task_id', taskId2);
+         fetch("{% url 'base:task_complete' %}", {
+    method: "POST",
+    headers: {
+        'Accept': 'application/json', 
+        'X-CSRFToken': "{{ csrf_token }}"       
+    },
+    body: formData,
+})
+    .then(response => response.json())
+    .then(data => {
+     if(data.status){
+        window.alert("Task marked as completed");
+        window.location.reload();
+     }
+     else{
+        window.alert("task not marked")
+     }
+    })
+    .catch(error => {
+        console.log('task_id ' + error);
+    })
+    }
+
+        </script> 
+
+
+{% endblock content %}
