@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'echo Standars'
+                bat 'echo Standard'
             }
         }
     }
